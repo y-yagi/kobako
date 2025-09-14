@@ -16,13 +16,13 @@ before:
     - go generate ./...
 
 builds:
-  - main: ./cmd/kobako
   - env:
       - CGO_ENABLED=0
     goos:
       - linux
       - windows
       - darwin
+    main: ./cmd/kobako
 
 archives:
   - formats: [tar.gz]
