@@ -55,3 +55,14 @@ Notes
 -----
 
 - By default the tool selects Alpine-based images for lightweight containers.
+
+Version
+-------
+
+Print the CLI version:
+
+```shell
+kobako -v
+# or
+kobako --version
+```

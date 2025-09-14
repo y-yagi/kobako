@@ -15,6 +15,9 @@ var lookPath = exec.LookPath
 var getwd = os.Getwd
 var execCommand = exec.Command
 
+// version is set at build time via -ldflags "-X main.version=..."
+var version = "dev"
+
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
 }
@@ -30,6 +33,11 @@ func containsShellOperators(s string) bool {
 }
 
 func run(args []string, stdout, stderr io.Writer) int {
+	// handle version requests for -v and --version
+	if len(args) > 0 && (args[0] == "--version" || args[0] == "-v") {
+		fmt.Fprintln(stdout, version)
+		return 0
+	}
 	if len(args) == 0 {
 		fmt.Fprintln(stderr, "Usage: kobako <command> [args...] (mounts current directory into container by default)")
 		return 2

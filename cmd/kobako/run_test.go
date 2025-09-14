@@ -76,3 +76,18 @@ func TestRun_UseShellDetected(t *testing.T) {
 		t.Fatalf("expected 0, got %d", status)
 	}
 }
+
+func TestRun_Version(t *testing.T) {
+	orig := version
+	defer func() { version = orig }()
+	version = "1.2.3-test"
+
+	var out, errb bytes.Buffer
+	status := run([]string{"-v"}, &out, &errb)
+	if status != 0 {
+		t.Fatalf("expected 0, got %d", status)
+	}
+	if out.String() != "1.2.3-test\n" {
+		t.Fatalf("unexpected version output: %q", out.String())
+	}
+}
