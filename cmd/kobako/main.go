@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -16,6 +17,16 @@ var execCommand = exec.Command
 
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
+}
+
+func containsShellOperators(s string) bool {
+	ops := []string{"&&", "||", ";", "|", "$", "`", "`", "("}
+	for _, o := range ops {
+		if strings.Contains(s, o) {
+			return true
+		}
+	}
+	return false
 }
 
 func run(args []string, stdout, stderr io.Writer) int {
@@ -45,7 +56,6 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
-	// Mount current directory into the container at /work by default.
 	hostDir := os.Getenv("KOBAKO_HOST_DIR")
 	if hostDir == "" {
 		cwd, err := getwd()
@@ -61,15 +71,42 @@ func run(args []string, stdout, stderr io.Writer) int {
 		workdir = "/work"
 	}
 
+	useShell := false
+	if len(args) == 1 {
+		a := args[0]
+		if containsShellOperators(a) {
+			useShell = true
+		}
+	}
+	if len(args) > 0 && (args[0] == "--shell" || args[0] == "-s") {
+		useShell = true
+		// remove the flag
+		args = args[1:]
+		if len(args) == 0 {
+			fmt.Fprintln(stderr, "--shell requires a command string")
+			return 2
+		}
+	}
+
 	dockerArgs := []string{"run", "--rm", "-i", "-v", hostDir + ":" + workdir, "-w", workdir, image}
-	dockerArgs = append(dockerArgs, args...)
+	if useShell {
+		shellCmd := ""
+		for i, p := range args {
+			if i > 0 {
+				shellCmd += " "
+			}
+			shellCmd += p
+		}
+		dockerArgs = append(dockerArgs, "sh", "-c", shellCmd)
+	} else {
+		dockerArgs = append(dockerArgs, args...)
+	}
 
 	cmd := execCommand(dockerPath, dockerArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	// Forward common termination signals to the child process
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {

@@ -34,7 +34,6 @@ func TestRun_NoDocker(t *testing.T) {
 }
 
 func TestRun_SuccessFakeExec(t *testing.T) {
-	// fake exec.Command to record args and pretend success
 	origExec := execCommand
 	defer func() { execCommand = origExec }()
 
@@ -45,6 +44,10 @@ func TestRun_SuccessFakeExec(t *testing.T) {
 		return exec.Command("true")
 	}
 
+	origLook := lookPath
+	defer func() { lookPath = origLook }()
+	lookPath = func(file string) (string, error) { return "/usr/bin/docker", nil }
+
 	var out, errb bytes.Buffer
 	status := run([]string{"echo", "hello"}, &out, &errb)
 	if status != 0 {
@@ -52,5 +55,24 @@ func TestRun_SuccessFakeExec(t *testing.T) {
 	}
 	if len(recorded) == 0 {
 		t.Fatalf("expected docker command to be recorded")
+	}
+}
+
+func TestRun_UseShellDetected(t *testing.T) {
+	origExec := execCommand
+	defer func() { execCommand = origExec }()
+	execCommand = func(name string, args ...string) *exec.Cmd {
+		return exec.Command("true")
+	}
+
+	origLook := lookPath
+	defer func() { lookPath = origLook }()
+	lookPath = func(file string) (string, error) { return "/usr/bin/docker", nil }
+
+	var out, errb bytes.Buffer
+	// single arg with && should trigger shell mode
+	status := run([]string{"echo hi && echo bye"}, &out, &errb)
+	if status != 0 {
+		t.Fatalf("expected 0, got %d", status)
 	}
 }

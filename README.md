@@ -33,6 +33,16 @@ Run Python tests:
 kobako python -m pytest
 ```
 
+Run multiple commands (install then run) using shell operators:
+
+```shell
+# automatic detection when the argument contains shell operators
+kobako "go install github.com/goreleaser/goreleaser/v2@latest && goreleaser"
+
+# or explicit shell mode
+kobako --shell "go install github.com/goreleaser/goreleaser/v2@latest && goreleaser"
+```
+
 Environment variables
 ---------------------
 
