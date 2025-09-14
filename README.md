@@ -8,30 +8,38 @@ Usage
 
 Basic usage (mounts current directory into container by default):
 
-  kobako <command> [args...]
+```shell
+kobako <command> [args...]
+```
 
 Examples
 --------
 
 Run `go version` in a Go container:
 
-  kobako go version
+```shell
+kobako go version
+```
 
 Run `npx create-react-app` (uses `node:alpine` by default):
 
-  kobako npx create-react-app my-app
+```shell
+kobako npx create-react-app my-app
+```
 
 Run Python tests:
 
-  kobako python -m pytest
+```shell
+kobako python -m pytest
+```
 
 Environment variables
 ---------------------
 
-- KOBAKO_IMAGE: override the container image used.
-- KOBAKO_NODE_IMAGE: override the Node image used when command selection defaults to Node.
-- KOBAKO_HOST_DIR: override the host directory mounted into the container (defaults to current directory).
-- KOBAKO_WORKDIR: override the target workdir inside the container (defaults to `/work`).
+- `KOBAKO_IMAGE`: override the container image used.
+- `KOBAKO_NODE_IMAGE`: override the Node image used when command selection defaults to Node.
+- `KOBAKO_HOST_DIR`: override the host directory mounted into the container (defaults to current directory).
+- `KOBAKO_WORKDIR`: override the target workdir inside the container (defaults to `/work`).
 
 Notes
 -----
