@@ -96,7 +96,13 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
-	dockerArgs := []string{"run", "--rm", "-i", "-v", hostDir + ":" + workdir, "-w", workdir, image}
+	userOpt := os.Getenv("KOBAKO_USER")
+	if userOpt == "" {
+		uid := os.Getuid()
+		gid := os.Getgid()
+		userOpt = fmt.Sprintf("%d:%d", uid, gid)
+	}
+	dockerArgs := []string{"run", "--rm", "-i", "--user", userOpt, "-v", hostDir + ":" + workdir, "-w", workdir, image}
 	if useShell {
 		shellCmd := ""
 		for i, p := range args {

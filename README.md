@@ -43,6 +43,7 @@ kobako "go install github.com/goreleaser/goreleaser/v2@latest && goreleaser"
 kobako --shell "go install github.com/goreleaser/goreleaser/v2@latest && goreleaser"
 ```
 
+
 Environment variables
 ---------------------
 
@@ -50,6 +51,7 @@ Environment variables
 - `KOBAKO_NODE_IMAGE`: override the Node image used when command selection defaults to Node.
 - `KOBAKO_HOST_DIR`: override the host directory mounted into the container (defaults to current directory).
 - `KOBAKO_WORKDIR`: override the target workdir inside the container (defaults to `/work`).
+- `KOBAKO_USER`: override the user/group for the Docker container (format: `uid:gid`, defaults to current user's UID:GID).
 
 Notes
 -----
